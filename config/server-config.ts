@@ -17,6 +17,12 @@ export const TOSS_PAYMENTS_SERVER_CONFIG = {
   secretKey: process.env.TOSS_SECRET_KEY || '',
 
   /**
+   * 웹훅 시크릿 키 (서버 전용)
+   * @env TOSS_WEBHOOK_SECRET
+   */
+  webhookSecret: process.env.TOSS_WEBHOOK_SECRET || '',
+
+  /**
    * API Base URL
    */
   apiUrl: 'https://api.tosspayments.com/v1',

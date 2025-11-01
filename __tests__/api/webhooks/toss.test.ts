@@ -12,7 +12,7 @@
  * TDD Phase: RED - These tests will FAIL until implementation is complete
  */
 
-import { POST } from '@/app/api/webhooks/toss/route'
+import { POST, __clearTestState__ } from '@/app/api/webhooks/toss/route'
 import { NextRequest } from 'next/server'
 import crypto from 'crypto'
 
@@ -91,6 +91,12 @@ const mockWebhookPayload = {
 
 describe('POST /api/webhooks/toss - Integration Tests', () => {
   beforeEach(() => {
+    __clearTestState__() // Clear idempotency cache and rate limits
+
+    // Clear mock call history explicitly
+    mockConsoleLog.mockClear()
+    mockConsoleError.mockClear()
+    mockConsoleWarn.mockClear()
     jest.clearAllMocks()
 
     // Mock successful payment confirmation by default
@@ -106,7 +112,8 @@ describe('POST /api/webhooks/toss - Integration Tests', () => {
   })
 
   afterEach(() => {
-    jest.restoreAllMocks()
+    // Don't restore console mocks - they need to persist across tests
+    // jest.restoreAllMocks()
   })
 
   describe('Valid webhook processing', () => {
