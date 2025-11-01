@@ -48,3 +48,9 @@ export const mockPaymentConfirmation: PaymentConfirmation = {
   requestedAt: '2024-01-01T00:00:00+09:00',
   approvedAt: '2024-01-01T00:00:10+09:00',
 }
+
+export const mockPaymentConfirmRequest = {
+  paymentKey: 'test_payment_key_123',
+  orderId: 'order-test-001',
+  amount: 10000,
+}
