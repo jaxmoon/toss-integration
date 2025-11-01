@@ -48,7 +48,7 @@ mcp__context7__get-library-docs
 
 ## 구체적 작업
 
-### 1. API 라우트 테스트 작성 (RED)
+### 1. 🔴 RED: 실패하는 API 테스트 작성
 
 `__tests__/api/payments/confirm.test.ts`:
 
@@ -125,7 +125,17 @@ describe('POST /api/payments/confirm', () => {
 })
 ```
 
-### 2. Mock 데이터 추가
+**테스트 실행 (❌ 실패 확인):**
+```bash
+npm test -- api/payments/confirm
+# 예상: FAIL - API 라우트가 없음
+```
+
+---
+
+### 2. 🟢 GREEN: API 라우트 구현
+
+#### 2-1. Mock 데이터 추가
 
 `__tests__/mocks/payment-data.ts`에 추가:
 
@@ -137,7 +147,7 @@ export const mockPaymentConfirmRequest = {
 }
 ```
 
-### 3. API 라우트 구현 (GREEN)
+#### 2-2. API 라우트 구현
 
 `app/api/payments/confirm/route.ts`:
 
@@ -234,13 +244,31 @@ export async function POST(request: NextRequest) {
 }
 ```
 
-### 4. 테스트 실행
-
+**테스트 실행 (✅ 통과 확인):**
 ```bash
 npm test -- api/payments/confirm
+# 예상: PASS - 3 tests passed
 ```
 
-### 5. 수동 테스트 (curl)
+---
+
+### 3. 🔵 REFACTOR: 코드 개선
+
+테스트 통과 후 개선:
+- 에러 메시지 개선
+- 입력 검증 강화
+- 로깅 추가
+- 타임아웃 설정
+
+**테스트 재실행:**
+```bash
+npm test -- api/payments/confirm
+# 여전히 PASS
+```
+
+---
+
+### 4. 수동 테스트 (curl)
 
 ```bash
 curl -X POST http://localhost:3000/api/payments/confirm \
@@ -294,10 +322,10 @@ __tests__/
 ## 완료 조건
 
 - [ ] techspec.md 및 context7 (Toss API) 문서 확인
-- [ ] API 라우트 테스트 작성 (3 tests)
-- [ ] `app/api/payments/confirm/route.ts` 구현
-- [ ] 모든 테스트 통과
-- [ ] 에러 처리 구현 (400, 500)
+- [ ] 🔴 RED: API 테스트 작성 → 실행 → ❌ 실패 확인
+- [ ] 🟢 GREEN: `app/api/payments/confirm/route.ts` 구현
+- [ ] 🟢 GREEN: 테스트 실행 → ✅ 통과 (3 tests)
+- [ ] 🔵 REFACTOR: 에러 처리, 검증 강화 → 테스트 → ✅ 통과
 - [ ] Basic Auth 인증 구현
 - [ ] TypeScript 타입 안전성 확보
 

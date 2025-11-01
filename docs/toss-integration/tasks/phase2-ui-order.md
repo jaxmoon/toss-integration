@@ -45,7 +45,7 @@
 
 ## 구체적 작업
 
-### 1. 테스트 작성 (RED)
+### 1. 🔴 RED: 실패하는 테스트 작성
 
 `__tests__/components/OrderSummary.test.tsx`:
 
@@ -89,12 +89,17 @@ describe('OrderSummary', () => {
 })
 ```
 
-테스트 실행 (실패 확인):
+**테스트 실행 (❌ 실패 확인 필수):**
 ```bash
 npm test -- OrderSummary
+# 예상: FAIL - 컴포넌트가 없으므로 모든 테스트 실패
 ```
 
-### 2. 금액 포맷팅 유틸리티 구현
+---
+
+### 2. 🟢 GREEN: 테스트를 통과하는 최소한의 코드 작성
+
+#### 2-1. 금액 포맷팅 유틸리티
 
 `lib/format.ts`:
 
@@ -116,7 +121,7 @@ export function formatNumber(num: number): string {
 }
 ```
 
-### 3. 컴포넌트 구현 (GREEN)
+#### 2-2. OrderSummary 컴포넌트 구현
 
 `components/OrderSummary.tsx`:
 
@@ -181,18 +186,28 @@ export function OrderSummary({ order }: OrderSummaryProps) {
 }
 ```
 
-### 4. 테스트 실행 (PASS 확인)
-
+**테스트 실행 (✅ 통과 확인):**
 ```bash
 npm test -- OrderSummary
-# 모든 테스트 통과 확인
+# 예상: PASS - 5 tests passed
 ```
 
-### 5. 리팩토링
+---
 
-- 중복 코드 제거
-- 접근성 개선 (aria-label 추가)
-- 반응형 디자인 검증
+### 3. 🔵 REFACTOR: 코드 개선
+
+테스트가 통과하는 상태에서 코드를 개선합니다:
+
+- **중복 코드 제거**: 반복되는 로직을 함수로 추출
+- **접근성 개선**: aria-label, role 속성 추가
+- **반응형 디자인**: 모바일/데스크톱 대응 확인
+- **타입 안전성**: TypeScript strict 모드 검증
+
+개선 후 **반드시 테스트 재실행:**
+```bash
+npm test -- OrderSummary
+# 여전히 PASS 확인
+```
 
 ---
 
@@ -230,10 +245,11 @@ npx tsc --noEmit
 ## 완료 조건
 
 - [ ] techspec.md 및 context7 문서 확인
-- [ ] 테스트 먼저 작성 (TDD - RED)
-- [ ] `lib/format.ts` 구현 (금액 포맷팅)
-- [ ] `components/OrderSummary.tsx` 구현 (GREEN)
-- [ ] 모든 테스트 통과 (5 tests)
+- [ ] 🔴 RED: 테스트 먼저 작성 → 실행 → ❌ 실패 확인
+- [ ] 🟢 GREEN: `lib/format.ts` 및 `components/OrderSummary.tsx` 구현
+- [ ] 🟢 GREEN: 테스트 실행 → ✅ 통과 확인 (5 tests)
+- [ ] 🔵 REFACTOR: 코드 개선
+- [ ] 🔵 REFACTOR: 테스트 재실행 → ✅ 여전히 통과
 - [ ] Tailwind CSS 스타일 적용
 - [ ] 반응형 디자인 확인
 

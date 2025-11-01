@@ -33,7 +33,7 @@ mcp__context7__get-library-docs
 
 ## 구체적 작업
 
-### 1. 테스트 작성 (RED)
+### 1. 🔴 RED: 실패하는 테스트 작성
 
 `__tests__/components/LoadingSpinner.test.tsx`:
 
@@ -65,7 +65,15 @@ describe('LoadingSpinner', () => {
 })
 ```
 
-### 2. 컴포넌트 구현 (GREEN)
+**테스트 실행 (❌ 실패 확인):**
+```bash
+npm test -- LoadingSpinner
+# 예상: FAIL
+```
+
+---
+
+### 2. 🟢 GREEN: 테스트를 통과하는 최소한의 코드 작성
 
 `components/LoadingSpinner.tsx`:
 
@@ -109,10 +117,25 @@ export function LoadingSpinner({
 }
 ```
 
-### 3. 테스트 실행
-
+**테스트 실행 (✅ 통과 확인):**
 ```bash
 npm test -- LoadingSpinner
+# 예상: PASS - 4 tests passed
+```
+
+---
+
+### 3. 🔵 REFACTOR: 코드 개선
+
+테스트가 통과하는 상태에서 개선:
+- CSS 애니메이션 성능 최적화
+- 접근성 속성 보강
+- 컴포넌트 Props 확장성 검토
+
+**테스트 재실행:**
+```bash
+npm test -- LoadingSpinner
+# 여전히 PASS 확인
 ```
 
 ---
@@ -133,9 +156,9 @@ __tests__/
 ## 완료 조건
 
 - [ ] techspec.md 확인
-- [ ] 테스트 작성 (4 tests)
-- [ ] 컴포넌트 구현
-- [ ] 모든 테스트 통과
+- [ ] 🔴 RED: 테스트 작성 → 실행 → ❌ 실패 확인
+- [ ] 🟢 GREEN: 컴포넌트 구현 → 테스트 → ✅ 통과 (4 tests)
+- [ ] 🔵 REFACTOR: 코드 개선 → 테스트 → ✅ 여전히 통과
 - [ ] CSS 애니메이션 동작 확인
 - [ ] 접근성 속성 포함
 

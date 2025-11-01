@@ -47,7 +47,7 @@ Toss Payments SDK를 초기화하고, 결제 요청 상태를 관리하는 로�
 
 ## 구체적 작업
 
-### 1. SDK 초기화 테스트 작성 (RED)
+### 1. 🔴 RED: 실패하는 SDK 테스트 작성
 
 `__tests__/lib/tossPayments.test.ts`:
 
@@ -78,7 +78,15 @@ describe('loadTossPaymentsWidget', () => {
 })
 ```
 
-### 2. SDK 초기화 로직 구현 (GREEN)
+**테스트 실행 (❌ 실패 확인):**
+```bash
+npm test -- lib/tossPayments
+# 예상: FAIL
+```
+
+---
+
+### 2. 🟢 GREEN: SDK 초기화 로직 구현
 
 `lib/tossPayments.ts`:
 
@@ -126,7 +134,15 @@ export async function createPaymentWidget(
 }
 ```
 
-### 3. 결제 요청 Hook 구현 (선택적)
+**테스트 실행 (✅ 통과 확인):**
+```bash
+npm test -- lib/tossPayments
+# 예상: PASS - 3 tests passed
+```
+
+---
+
+### 3. 🟢 GREEN: 결제 요청 Hook 구현 (선택적)
 
 `hooks/usePayment.ts`:
 
@@ -194,10 +210,19 @@ export function usePayment() {
 }
 ```
 
-### 4. 테스트 실행
+---
 
+### 4. 🔵 REFACTOR: 코드 개선
+
+테스트 통과 후 개선:
+- 에러 메시지 개선
+- SDK 로딩 재시도 로직 추가 (선택적)
+- 타입 안전성 강화
+
+**테스트 재실행:**
 ```bash
 npm test -- lib/tossPayments
+# 여전히 PASS
 ```
 
 ---
@@ -221,13 +246,11 @@ __tests__/
 ## 완료 조건
 
 - [ ] techspec.md 및 context7 (Toss SDK) 문서 확인
-- [ ] SDK 초기화 테스트 작성 (3 tests)
-- [ ] `lib/tossPayments.ts` 구현
-  - [ ] `loadTossPaymentsWidget()` 함수
-  - [ ] `createPaymentWidget()` 함수
-  - [ ] 에러 처리
-- [ ] `hooks/usePayment.ts` 구현 (선택적)
-- [ ] 모든 테스트 통과
+- [ ] 🔴 RED: SDK 테스트 작성 → 실행 → ❌ 실패 확인
+- [ ] 🟢 GREEN: `lib/tossPayments.ts` 및 `hooks/usePayment.ts` 구현
+- [ ] 🟢 GREEN: 테스트 실행 → ✅ 통과 (3 tests)
+- [ ] 🔵 REFACTOR: 에러 처리 개선 → 테스트 → ✅ 통과
+- [ ] `loadTossPaymentsWidget()`, `createPaymentWidget()` 함수 구현
 - [ ] 클라이언트 키 환경 변수 사용
 
 ---

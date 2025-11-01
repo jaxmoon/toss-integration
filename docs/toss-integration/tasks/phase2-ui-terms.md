@@ -33,7 +33,7 @@ mcp__context7__get-library-docs
 
 ## 구체적 작업
 
-### 1. 테스트 작성 (RED)
+### 1. 🔴 RED: 실패하는 테스트 작성
 
 `__tests__/components/TermsAgreement.test.tsx`:
 
@@ -84,7 +84,17 @@ describe('TermsAgreement', () => {
 })
 ```
 
-### 2. 타입 정의
+**테스트 실행 (❌ 실패 확인):**
+```bash
+npm test -- TermsAgreement
+# 예상: FAIL
+```
+
+---
+
+### 2. 🟢 GREEN: 테스트를 통과하는 코드 작성
+
+#### 2-1. 타입 정의
 
 `types/terms.ts`:
 
@@ -98,7 +108,7 @@ export interface TermsAgreementState {
 }
 ```
 
-### 3. 컴포넌트 구현 (GREEN)
+#### 2-2. TermsAgreement 컴포넌트 구현
 
 `components/TermsAgreement.tsx`:
 
@@ -215,10 +225,25 @@ export function TermsAgreement({ onAgreementChange }: TermsAgreementProps) {
 }
 ```
 
-### 4. 테스트 실행
-
+**테스트 실행 (✅ 통과 확인):**
 ```bash
 npm test -- TermsAgreement
+# 예상: PASS - 4 tests passed
+```
+
+---
+
+### 3. 🔵 REFACTOR: 코드 개선
+
+테스트 통과 후 개선:
+- 상태 관리 로직 최적화
+- 접근성 속성 보강
+- 약관 링크 추가 (선택적)
+
+**테스트 재실행:**
+```bash
+npm test -- TermsAgreement
+# 여전히 PASS 확인
 ```
 
 ---
@@ -242,12 +267,12 @@ __tests__/
 ## 완료 조건
 
 - [ ] techspec.md 확인
-- [ ] `types/terms.ts` 생성
-- [ ] 테스트 작성 (4 tests)
-- [ ] 컴포넌트 구현 ('use client' 포함)
-- [ ] 모든 테스트 통과
+- [ ] 🔴 RED: 테스트 작성 → 실행 → ❌ 실패 확인
+- [ ] 🟢 GREEN: `types/terms.ts` 및 컴포넌트 구현
+- [ ] 🟢 GREEN: 테스트 실행 → ✅ 통과 (4 tests)
+- [ ] 🔵 REFACTOR: 코드 개선 → 테스트 → ✅ 여전히 통과
 - [ ] 필수/선택 약관 구분
-- [ ] 유효성 검사 로직
+- [ ] 유효성 검사 로직 (canProceed)
 - [ ] 접근성 지원
 
 ---
