@@ -1,10 +1,10 @@
 # Toss Payments 통합 - 진행 체크리스트
 
-> **진행도**: 25% (Phase 1 완료)
+> **진행도**: 50% (Phase 2 완료)
 >
 > **마지막 업데이트**: 2025-11-01
 >
-> **현재 작업**: Phase 1 완료, Phase 2 진행 중
+> **현재 작업**: Phase 2 완료, Phase 3 진행 중
 
 ---
 
@@ -86,45 +86,45 @@
 **예상 시간**: 1시간
 
 ### 2-1. OrderSummary 컴포넌트 (frontend-ui-specialist)
-- [ ] `tasks/phase2-ui-order.md` 읽기
-- [ ] `techspec.md` 필수 확인
-- [ ] `components/OrderSummary.tsx` 생성
-- [ ] Props 인터페이스 정의 (`OrderSummaryProps`)
-- [ ] 주문 상품 목록 렌더링
-- [ ] 총 금액 계산 및 표시
-- [ ] 금액 포맷팅 유틸리티 구현
-- [ ] Tailwind CSS 스타일링
-- [ ] `__tests__/components/OrderSummary.test.tsx` 작성
-- [ ] 단위 테스트 통과 확인
-- [ ] Git 커밋: "feat(ui): OrderSummary 컴포넌트 구현"
+- [x] `tasks/phase2-ui-order.md` 읽기
+- [x] `techspec.md` 필수 확인
+- [x] `components/OrderSummary.tsx` 생성
+- [x] Props 인터페이스 정의 (`OrderSummaryProps`)
+- [x] 주문 상품 목록 렌더링
+- [x] 총 금액 계산 및 표시
+- [x] 금액 포맷팅 유틸리티 구현 (lib/format.ts)
+- [x] Tailwind CSS 스타일링
+- [x] `__tests__/components/OrderSummary.test.tsx` 작성
+- [x] 단위 테스트 통과 확인 (5 tests passing)
+- [x] Git 커밋: "feat(ui): OrderSummary 컴포넌트 구현"
 
 ### 2-2. LoadingSpinner 컴포넌트 (frontend-ui-specialist)
-- [ ] `tasks/phase2-ui-loading.md` 읽기
-- [ ] `techspec.md` 필수 확인
-- [ ] `components/LoadingSpinner.tsx` 생성
-- [ ] Props 인터페이스 정의 (선택적 size, message)
-- [ ] CSS 애니메이션 구현
-- [ ] Tailwind CSS 스타일링
-- [ ] `__tests__/components/LoadingSpinner.test.tsx` 작성
-- [ ] 단위 테스트 통과 확인
-- [ ] Git 커밋: "feat(ui): LoadingSpinner 컴포넌트 구현"
+- [x] `tasks/phase2-ui-loading.md` 읽기
+- [x] `techspec.md` 필수 확인
+- [x] `components/LoadingSpinner.tsx` 생성
+- [x] Props 인터페이스 정의 (선택적 size, message)
+- [x] CSS 애니메이션 구현 (animate-spin)
+- [x] Tailwind CSS 스타일링
+- [x] `__tests__/components/LoadingSpinner.test.tsx` 작성
+- [x] 단위 테스트 통과 확인 (4 tests passing)
+- [x] Git 커밋: "feat(ui): LoadingSpinner 컴포넌트 구현"
 
 ### 2-3. 약관 동의 UI (frontend-ui-specialist)
-- [ ] `tasks/phase2-ui-terms.md` 읽기
-- [ ] `techspec.md` 필수 확인
-- [ ] `components/TermsAgreement.tsx` 생성
-- [ ] Props 인터페이스 정의 (onChange 콜백)
-- [ ] 체크박스 UI 구현
-- [ ] 필수 약관 유효성 검사
-- [ ] Tailwind CSS 스타일링
-- [ ] `__tests__/components/TermsAgreement.test.tsx` 작성
-- [ ] 단위 테스트 통과 확인
-- [ ] Git 커밋: "feat(ui): TermsAgreement 컴포넌트 구현"
+- [x] `tasks/phase2-ui-terms.md` 읽기
+- [x] `techspec.md` 필수 확인
+- [x] `components/TermsAgreement.tsx` 생성
+- [x] Props 인터페이스 정의 (onChange 콜백)
+- [x] 체크박스 UI 구현 (전체 동의 포함)
+- [x] 필수 약관 유효성 검사 (canProceed)
+- [x] Tailwind CSS 스타일링
+- [x] `__tests__/components/TermsAgreement.test.tsx` 작성
+- [x] 단위 테스트 통과 확인 (4 tests passing)
+- [x] Git 커밋: "feat(ui): TermsAgreement 컴포넌트 구현"
 
 **Phase 2 완료 조건**:
-- [ ] 3개 컴포넌트 모두 단위 테스트 통과
-- [ ] Tailwind CSS 스타일 적용 확인
-- [ ] 3개 커밋 생성
+- [x] 3개 컴포넌트 모두 단위 테스트 통과 (총 13 tests passing)
+- [x] Tailwind CSS 스타일 적용 확인
+- [x] 3개 커밋 생성
 
 ---
 
