@@ -16,11 +16,31 @@ import { NextRequest, NextResponse } from 'next/server'
 import { TOSS_PAYMENTS_SERVER_CONFIG } from '@/config/server-config'
 import { verifyWebhookSignature } from '@/lib/webhooks/verifySignature'
 import { IdempotencyHandler } from '@/lib/webhooks/idempotencyHandler'
+import {
+  RATE_LIMIT_WINDOW_MS,
+  RATE_LIMIT_MAX_REQUESTS,
+  ERROR_MESSAGES,
+  HTTP_STATUS,
+  WEBHOOK_IDEMPOTENCY_TTL_SECONDS,
+  FIRST_ELEMENT_INDEX,
+  SIGNATURE_PREFIX_LENGTH,
+} from '@/lib/webhooks/constants'
+import { PaymentConfirmation } from '@/types/payment'
 import crypto from 'crypto'
 
 /**
  * Toss Payments Webhook 이벤트 타입
  */
+/**
+ * Webhook processing response
+ * Returned to Toss Payments after successful webhook processing
+ */
+interface WebhookResponse {
+  readonly success: boolean
+  readonly message: string
+  readonly orderId: string
+}
+
 interface TossWebhookEvent {
   eventType: string // PAYMENT_STATUS_CHANGED
   data: {
@@ -41,7 +61,7 @@ async function confirmPayment(
   paymentKey: string,
   orderId: string,
   amount: number
-): Promise<any> {
+): Promise<PaymentConfirmation> {
   const url = `${TOSS_PAYMENTS_SERVER_CONFIG.apiUrl}/payments/confirm`
 
   const response = await fetch(url, {
@@ -63,12 +83,10 @@ async function confirmPayment(
 }
 
 // Singleton idempotency handler (24 hour TTL)
-const idempotencyHandler = new IdempotencyHandler(24 * 60 * 60) // 86400 seconds
+const idempotencyHandler = new IdempotencyHandler<WebhookResponse>(WEBHOOK_IDEMPOTENCY_TTL_SECONDS)
 
 // Rate limiting state (in-memory)
 const rateLimitStore = new Map<string, { count: number; resetAt: number }>()
-const RATE_LIMIT_WINDOW_MS = 60 * 1000 // 1 minute
-const RATE_LIMIT_MAX_REQUESTS = 50 // Max 50 requests per minute per IP
 
 // Export for testing
 export function __clearTestState__() {
@@ -106,15 +124,15 @@ function checkRateLimit(ip: string): boolean {
  */
 export async function POST(request: NextRequest) {
   const requestId = crypto.randomUUID()
-  const ip = request.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown'
+  const ip = request.headers.get('x-forwarded-for')?.split(',')[FIRST_ELEMENT_INDEX] || 'unknown'
 
   try {
     // Step 1: Rate limiting
     if (!checkRateLimit(ip)) {
       console.warn('[Rate Limit Exceeded]', { ip, requestId })
       return NextResponse.json(
-        { error: 'Too many requests', success: false },
-        { status: 429 }
+        { error: ERROR_MESSAGES.RATE_LIMIT_EXCEEDED, success: false },
+        { status: HTTP_STATUS.TOO_MANY_REQUESTS }
       )
     }
 
@@ -129,8 +147,8 @@ export async function POST(request: NextRequest) {
     } catch (parseError) {
       console.error('[JSON Parse Error]', { requestId, error: parseError })
       return NextResponse.json(
-        { error: 'Invalid JSON payload', success: false },
-        { status: 400 }
+        { error: ERROR_MESSAGES.INVALID_JSON, success: false },
+        { status: HTTP_STATUS.BAD_REQUEST }
       )
     }
 
@@ -140,8 +158,8 @@ export async function POST(request: NextRequest) {
     if (!webhookSecret || webhookSecret.trim() === '') {
       console.error('[Config Error]', { requestId, error: 'Webhook secret not configured' })
       return NextResponse.json(
-        { error: 'Webhook secret not configured', success: false },
-        { status: 500 }
+        { error: ERROR_MESSAGES.WEBHOOK_NOT_CONFIGURED, success: false },
+        { status: HTTP_STATUS.INTERNAL_SERVER_ERROR }
       )
     }
 
@@ -155,12 +173,12 @@ export async function POST(request: NextRequest) {
       webhookSecret
     )
 
-    const signaturePrefix = signature ? signature.substring(0, 8) : undefined
+    const signaturePrefix = signature ? signature.substring(0, SIGNATURE_PREFIX_LENGTH) : undefined
 
     if (!verificationResult.isValid) {
       const reason = verificationResult.reason === 'MISSING_SIGNATURE'
-        ? 'Missing signature'
-        : 'Invalid signature'
+        ? ERROR_MESSAGES.MISSING_SIGNATURE_HEADER
+        : ERROR_MESSAGES.SIGNATURE_VERIFICATION_FAILED
 
       console.warn('[Webhook Verification Failed]', {
         reason,
@@ -173,7 +191,7 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json(
         { error: reason, success: false },
-        { status: 401 }
+        { status: HTTP_STATUS.UNAUTHORIZED }
       )
     }
 
@@ -184,8 +202,8 @@ export async function POST(request: NextRequest) {
     if (!idempotencyKey || idempotencyKey.trim() === '') {
       console.warn('[Missing Idempotency Key]', { requestId, orderId: event.data?.orderId })
       return NextResponse.json(
-        { error: 'Missing idempotency key', success: false },
-        { status: 400 }
+        { error: ERROR_MESSAGES.MISSING_IDEMPOTENCY_KEY, success: false },
+        { status: HTTP_STATUS.BAD_REQUEST }
       )
     }
 
@@ -194,8 +212,8 @@ export async function POST(request: NextRequest) {
     if (!isNewRequest) {
       console.warn('[Duplicate Request]', { requestId, idempotencyKey, orderId: event.data?.orderId })
       return NextResponse.json(
-        { error: 'Duplicate request', success: false },
-        { status: 409 }
+        { error: ERROR_MESSAGES.DUPLICATE_REQUEST, success: false },
+        { status: HTTP_STATUS.CONFLICT }
       )
     }
 
@@ -203,8 +221,8 @@ export async function POST(request: NextRequest) {
     if (!event.data || !event.data.orderId || !event.data.paymentKey) {
       console.error('[Invalid Payload]', { requestId, event })
       return NextResponse.json(
-        { error: 'Invalid webhook payload', success: false },
-        { status: 400 }
+        { error: ERROR_MESSAGES.INVALID_PAYLOAD, success: false },
+        { status: HTTP_STATUS.BAD_REQUEST }
       )
     }
 
@@ -222,8 +240,8 @@ export async function POST(request: NextRequest) {
     // Step 8: Process webhook based on event type and status
     if (event.eventType !== 'PAYMENT_STATUS_CHANGED') {
       return NextResponse.json(
-        { error: 'Unsupported event type', success: false },
-        { status: 400 }
+        { error: ERROR_MESSAGES.UNSUPPORTED_EVENT_TYPE, success: false },
+        { status: HTTP_STATUS.BAD_REQUEST }
       )
     }
 
@@ -266,15 +284,15 @@ export async function POST(request: NextRequest) {
     } catch (confirmError) {
       console.error('[Payment Confirmation Error]', { requestId, error: confirmError })
       return NextResponse.json(
-        { error: 'Payment confirmation failed', success: false },
-        { status: 500 }
+        { error: ERROR_MESSAGES.PAYMENT_CONFIRMATION_FAILED, success: false },
+        { status: HTTP_STATUS.INTERNAL_SERVER_ERROR }
       )
     }
   } catch (error) {
     console.error('[Webhook Processing Error]', { requestId, error })
     return NextResponse.json(
-      { error: 'Webhook processing failed', success: false },
-      { status: 500 }
+      { error: ERROR_MESSAGES.INTERNAL_ERROR, success: false },
+      { status: HTTP_STATUS.INTERNAL_SERVER_ERROR }
     )
   }
 }
