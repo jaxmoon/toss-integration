@@ -86,6 +86,7 @@ function validatePaymentConfirmRequest(
 ): ApiResponse<null> | null {
   const { paymentKey, orderId, amount } = body
 
+  // 필수 파라미터 검증
   if (!paymentKey || !orderId || amount === undefined || amount === null) {
     return {
       success: false,
@@ -96,6 +97,7 @@ function validatePaymentConfirmRequest(
     }
   }
 
+  // paymentKey 검증
   if (typeof paymentKey !== 'string' || paymentKey.length === 0) {
     return {
       success: false,
@@ -106,6 +108,18 @@ function validatePaymentConfirmRequest(
     }
   }
 
+  // paymentKey 길이 검증 (보안: 비정상적으로 긴 문자열 차단)
+  if (paymentKey.length > 200) {
+    return {
+      success: false,
+      error: {
+        code: 'INVALID_PAYMENT_KEY',
+        message: 'paymentKey 형식이 올바르지 않습니다',
+      },
+    }
+  }
+
+  // orderId 검증
   if (typeof orderId !== 'string' || orderId.length === 0) {
     return {
       success: false,
@@ -116,12 +130,47 @@ function validatePaymentConfirmRequest(
     }
   }
 
+  // orderId 형식 검증 (보안: 예상된 패턴만 허용)
+  if (!/^order-[\w-]{1,100}$/.test(orderId)) {
+    return {
+      success: false,
+      error: {
+        code: 'INVALID_ORDER_ID',
+        message: 'orderId 형식이 올바르지 않습니다',
+      },
+    }
+  }
+
+  // amount 검증
   if (typeof amount !== 'number' || amount <= 0) {
     return {
       success: false,
       error: {
         code: 'INVALID_AMOUNT',
         message: 'amount는 0보다 큰 숫자여야 합니다',
+      },
+    }
+  }
+
+  // amount 상한선 검증 (보안: 비정상적으로 큰 금액 차단)
+  // 최대 1억 원으로 제한
+  if (amount > 100000000) {
+    return {
+      success: false,
+      error: {
+        code: 'INVALID_AMOUNT',
+        message: '결제 금액이 허용 범위를 초과했습니다',
+      },
+    }
+  }
+
+  // amount 정수 검증 (원 단위이므로 소수점 불허)
+  if (!Number.isInteger(amount)) {
+    return {
+      success: false,
+      error: {
+        code: 'INVALID_AMOUNT',
+        message: 'amount는 정수여야 합니다',
       },
     }
   }

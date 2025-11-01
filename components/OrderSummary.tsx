@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import type { Order, OrderItem } from '@/types/payment'
 import { formatCurrency } from '@/lib/format'
 
@@ -7,8 +8,9 @@ export interface OrderSummaryProps {
 
 /**
  * OrderItem 컴포넌트 - 단일 주문 항목 표시
+ * React.memo로 최적화하여 불필요한 리렌더링 방지
  */
-function OrderItemRow({ item }: { item: OrderItem }) {
+const OrderItemRow = memo(function OrderItemRow({ item }: { item: OrderItem }) {
   const subtotal = item.price * item.quantity
   const showUnitPrice = item.quantity > 1
 
@@ -35,10 +37,12 @@ function OrderItemRow({ item }: { item: OrderItem }) {
       </div>
     </div>
   )
-}
+})
 
 /**
  * OrderSummary 컴포넌트 - 주문 요약 정보 표시
+ *
+ * React.memo로 최적화하여 order prop이 변경되지 않으면 리렌더링 방지
  *
  * 접근성:
  * - 시맨틱 HTML 사용 (section, header, ul)
@@ -49,7 +53,7 @@ function OrderItemRow({ item }: { item: OrderItem }) {
  * - 모바일 우선 디자인
  * - Flexbox로 유연한 레이아웃
  */
-export function OrderSummary({ order }: OrderSummaryProps) {
+export const OrderSummary = memo(function OrderSummary({ order }: OrderSummaryProps) {
   const { orderName, amount, items } = order
 
   return (
@@ -98,4 +102,4 @@ export function OrderSummary({ order }: OrderSummaryProps) {
       </footer>
     </section>
   )
-}
+})

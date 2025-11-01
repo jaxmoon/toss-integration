@@ -30,6 +30,7 @@ const customJestConfig = {
     '<rootDir>/.next/',
     '<rootDir>/__tests__/utils/',
     '<rootDir>/__tests__/mocks/',
+    '<rootDir>/e2e/',
   ],
 
   // 커버리지 수집 대상

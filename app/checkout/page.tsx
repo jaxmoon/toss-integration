@@ -9,9 +9,20 @@
 'use client'
 
 import { useState } from 'react'
+import dynamic from 'next/dynamic'
 import { OrderSummary } from '@/components/OrderSummary'
-import { PaymentWidget } from '@/components/PaymentWidget'
+import { LoadingSpinner } from '@/components/LoadingSpinner'
 import { DEFAULT_ORDER, TEST_CUSTOMER, APP_CONFIG } from '@/config/constants'
+
+// PaymentWidget을 동적 import (코드 스플리팅)
+// SSR 비활성화: 브라우저에서만 로드 (Toss SDK는 클라이언트 전용)
+const PaymentWidget = dynamic(
+  () => import('@/components/PaymentWidget').then((mod) => mod.PaymentWidget),
+  {
+    loading: () => <LoadingSpinner message="결제 위젯 로딩 중..." size="md" />,
+    ssr: false,
+  }
+)
 
 /**
  * CheckoutPage 컴포넌트

@@ -22,7 +22,7 @@
  */
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import { createPaymentWidget } from '@/lib/tossPayments'
 import { LoadingSpinner } from './LoadingSpinner'
 import type { PaymentRequest } from '@/types/payment'
@@ -110,10 +110,11 @@ export function PaymentWidget({
   /**
    * 결제 요청 핸들러
    *
+   * useCallback으로 메모이제이션하여 불필요한 함수 재생성 방지
    * 위젯의 requestPayment 메서드를 호출하여 결제 창을 엽니다.
    * 결제 완료 시 successUrl로, 실패 시 failUrl로 리다이렉트됩니다.
    */
-  const handlePayment = async () => {
+  const handlePayment = useCallback(async () => {
     if (!widgetRef.current) {
       setError('위젯이 초기화되지 않았습니다')
       return
@@ -137,7 +138,7 @@ export function PaymentWidget({
       console.error('Payment request failed:', err)
       setError(err.message || '결제 요청 실패')
     }
-  }
+  }, [paymentData, onPaymentRequest])
 
   // 로딩 상태
   if (isLoading) {
