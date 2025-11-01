@@ -3,26 +3,18 @@
  */
 
 /**
- * Toss Payments API 설정
+ * Toss Payments 클라이언트 설정
+ *
+ * ⚠️ 주의: 이 파일은 클라이언트 번들에 포함됩니다!
+ * - NEXT_PUBLIC_* 환경 변수만 사용하세요
+ * - 절대 시크릿 키를 포함하지 마세요
  */
-export const TOSS_PAYMENTS_CONFIG = {
+export const TOSS_PAYMENTS_CLIENT_CONFIG = {
   /**
    * 클라이언트 키 (브라우저에서 사용)
    * @env NEXT_PUBLIC_TOSS_CLIENT_KEY
    */
   clientKey: process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY || '',
-
-  /**
-   * 시크릿 키 (서버에서만 사용)
-   * @env TOSS_SECRET_KEY
-   * @important 절대 클라이언트에 노출하지 말 것
-   */
-  secretKey: process.env.TOSS_SECRET_KEY || '',
-
-  /**
-   * API Base URL
-   */
-  apiUrl: 'https://api.tosspayments.com/v1',
 
   /**
    * 고객 키 (테스트 환경에서는 ANONYMOUS 사용 가능)
@@ -85,11 +77,13 @@ export const SAMPLE_PRODUCTS = [
 ] as const;
 
 /**
- * 기본 주문 정보
- * 샘플 주문 생성 시 사용
+ * 기본 주문 정보 (샘플)
+ *
+ * ⚠️ 주의: 실제 결제에서는 사용하지 마세요!
+ * - 실제 orderId는 서버에서 생성해야 합니다
+ * - amount와 orderName도 서버에서 검증되어야 합니다
  */
-export const DEFAULT_ORDER = {
-  orderId: `order-${Date.now()}`,
+export const DEFAULT_ORDER_SAMPLE = {
   orderName: 'Toss Payments 위젯 통합 가이드',
   amount: 50000,
   items: [SAMPLE_PRODUCTS[0]],

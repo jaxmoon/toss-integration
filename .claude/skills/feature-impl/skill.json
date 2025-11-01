@@ -1,0 +1,28 @@
+{
+  "name": "feature-impl",
+  "version": "1.0.0",
+  "description": "TDD Feature Implementation Workflow with GitHub Integration - Orchestrates parallel development using specialized agents, GitHub Issues tracking, and Red-Green-Refactor methodology",
+  "author": "feature-impl team",
+  "tags": ["tdd", "github", "parallel", "workflow", "automation"],
+  "trigger_patterns": [
+    "start (\\w+-?\\w*) feature",
+    "continue (\\w+-?\\w*)",
+    "resume (\\w+-?\\w*)",
+    "(\\w+) 시작",
+    "(\\w+) 이어서",
+    "(\\w+) 계속"
+  ],
+  "requirements": {
+    "git": "Required - must be a git repository with remote configured",
+    "gh_cli": "Required - GitHub CLI must be installed and authenticated",
+    "node": "Optional - for running tests and builds"
+  },
+  "notes": [
+    "This skill requires GitHub integration and will create/manage GitHub Issues",
+    "All work is tracked via feature branches (feature/{feature-name})",
+    "Techspec files can be placed at docs/features/{feature}/techspec.md or specified by user",
+    "Supports case-insensitive techspec naming: techspec.md, tech-spec.md, tech_spec.md, spec.md",
+    "Progress is dual-tracked: TODO.md (local fast view) + GitHub Issues (source of truth)",
+    "Estimated 60% time savings via parallel agent execution"
+  ]
+}

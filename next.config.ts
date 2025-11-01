@@ -75,12 +75,12 @@ const nextConfig: NextConfig = {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://js.tosspayments.com",
+              "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://js.tosspayments.com https://*.tosspayments.com",
               "style-src 'self' 'unsafe-inline'",
               "img-src 'self' data: https:",
               "font-src 'self' data:",
-              "connect-src 'self' https://api.tosspayments.com",
-              "frame-src 'self' https://js.tosspayments.com",
+              "connect-src 'self' https://*.tosspayments.com",
+              "frame-src 'self' https://*.tosspayments.com",
             ].join('; '),
           },
           {

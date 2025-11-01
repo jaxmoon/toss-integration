@@ -22,7 +22,7 @@
  */
 'use client'
 
-import { useEffect, useRef, useState, useCallback } from 'react'
+import { useLayoutEffect, useRef, useState } from 'react'
 import { createPaymentWidget } from '@/lib/tossPayments'
 import { LoadingSpinner } from './LoadingSpinner'
 import type { PaymentRequest } from '@/types/payment'
@@ -47,51 +47,77 @@ export function PaymentWidget({
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const widgetRef = useRef<any>(null)
-  const paymentMethodRef = useRef<HTMLDivElement>(null)
-  const agreementRef = useRef<HTMLDivElement>(null)
+  const isInitializedRef = useRef(false)
 
   /**
-   * 위젯 초기화 및 렌더링
-   *
-   * useEffect를 사용하여 컴포넌트 마운트 시 위젯을 초기화하고
-   * 결제 수단 UI와 약관 UI를 렌더링합니다.
+   * 위젯 초기화 및 cleanup
    */
-  useEffect(() => {
+  useLayoutEffect(() => {
+    // 이미 초기화되었다면 중복 실행 방지
+    if (isInitializedRef.current) {
+      console.log('⏭️ 이미 초기화됨 - 스킵')
+      return
+    }
+
     let isMounted = true
 
     async function initializeWidget() {
       try {
+        console.log('🔄 위젯 초기화 시작...')
+
+        // DOM 요소 존재 확인
+        const paymentMethodEl = document.querySelector('#payment-method')
+        const agreementEl = document.querySelector('#agreement')
+
+        console.log('🔍 DOM 요소 검색:', {
+          paymentMethodEl: paymentMethodEl ? '✅' : '❌',
+          agreementEl: agreementEl ? '✅' : '❌'
+        })
+
+        if (!paymentMethodEl || !agreementEl) {
+          throw new Error('결제 UI 요소를 찾을 수 없습니다.')
+        }
+
+        console.log('✅ DOM 요소 확인 완료')
+
         // 위젯 생성
         const widgets = await createPaymentWidget()
+        console.log('✅ 위젯 생성 완료')
+
+        if (!isMounted) return
         widgetRef.current = widgets
 
         // 결제 금액 설정
+        console.log('💰 금액 설정 중:', paymentData.amount)
         await widgets.setAmount({
           currency: 'KRW',
           value: paymentData.amount,
         })
+        console.log('✅ 금액 설정 완료')
 
         // 결제 수단 렌더링
-        if (paymentMethodRef.current) {
-          await widgets.renderPaymentMethods({
-            selector: '#payment-method',
-            variantKey: 'DEFAULT',
-          })
-        }
+        console.log('🎨 결제 수단 렌더링 시작...')
+        await widgets.renderPaymentMethods({
+          selector: '#payment-method',
+          variantKey: 'DEFAULT',
+        })
+        console.log('✅ 결제 수단 렌더링 완료')
 
         // 약관 렌더링
-        if (agreementRef.current) {
-          await widgets.renderAgreement({
-            selector: '#agreement',
-            variantKey: 'AGREEMENT',
-          })
-        }
+        console.log('📄 약관 렌더링 시작...')
+        await widgets.renderAgreement({
+          selector: '#agreement',
+          variantKey: 'AGREEMENT',
+        })
+        console.log('✅ 약관 렌더링 완료')
 
         if (isMounted) {
+          console.log('✅ 위젯 초기화 완료!')
+          isInitializedRef.current = true
           setIsLoading(false)
         }
       } catch (err: any) {
-        console.error('Widget initialization failed:', err)
+        console.error('❌ Widget initialization failed:', err)
         if (isMounted) {
           setError(err.message || '위젯 로드 실패')
           setIsLoading(false)
@@ -101,20 +127,22 @@ export function PaymentWidget({
 
     initializeWidget()
 
-    // 클린업: 컴포넌트 언마운트 시 상태 업데이트 방지
+    // Cleanup: 컴포넌트 언마운트 시 위젯 정리
     return () => {
+      console.log('🧹 위젯 정리 중...')
       isMounted = false
+      isInitializedRef.current = false
+      widgetRef.current = null
     }
   }, [paymentData.amount])
 
   /**
    * 결제 요청 핸들러
    *
-   * useCallback으로 메모이제이션하여 불필요한 함수 재생성 방지
    * 위젯의 requestPayment 메서드를 호출하여 결제 창을 엽니다.
    * 결제 완료 시 successUrl로, 실패 시 failUrl로 리다이렉트됩니다.
    */
-  const handlePayment = useCallback(async () => {
+  const handlePayment = async () => {
     if (!widgetRef.current) {
       setError('위젯이 초기화되지 않았습니다')
       return
@@ -138,11 +166,6 @@ export function PaymentWidget({
       console.error('Payment request failed:', err)
       setError(err.message || '결제 요청 실패')
     }
-  }, [paymentData, onPaymentRequest])
-
-  // 로딩 상태
-  if (isLoading) {
-    return <LoadingSpinner message="결제 위젯을 불러오는 중..." size="md" />
   }
 
   // 에러 상태
@@ -168,20 +191,26 @@ export function PaymentWidget({
   // 위젯 렌더링
   return (
     <div className="space-y-6">
+      {isLoading && (
+        <div className="text-center p-4">
+          <LoadingSpinner message="결제 위젯을 불러오는 중..." size="md" />
+        </div>
+      )}
+
       {/* 결제 수단 선택 */}
       <div
         id="payment-method"
-        ref={paymentMethodRef}
         role="region"
         aria-label="결제 수단 선택"
+        className="min-h-[200px]"
       />
 
       {/* 약관 동의 */}
       <div
         id="agreement"
-        ref={agreementRef}
         role="region"
         aria-label="이용약관 동의"
+        className="min-h-[100px]"
       />
 
       {/* 결제 버튼 */}
@@ -190,6 +219,7 @@ export function PaymentWidget({
         className="w-full py-4 bg-blue-600 text-white font-bold text-lg rounded-lg hover:bg-blue-700 active:bg-blue-800 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300 disabled:bg-gray-400 disabled:cursor-not-allowed"
         aria-label="결제하기"
         type="button"
+        disabled={isLoading}
       >
         결제하기
       </button>

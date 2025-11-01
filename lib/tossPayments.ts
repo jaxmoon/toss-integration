@@ -8,7 +8,7 @@
  */
 
 import { loadTossPayments } from '@tosspayments/tosspayments-sdk'
-import { TOSS_PAYMENTS_CONFIG } from '@/config/constants'
+import { TOSS_PAYMENTS_CLIENT_CONFIG } from '@/config/constants'
 
 /**
  * Payment Widget 타입 정의
@@ -52,13 +52,18 @@ let tossPaymentsInstance: TossPaymentsSDK | null = null
  * @throws SDK 로드 실패 시 에러
  */
 export async function loadTossPaymentsSDK(): Promise<TossPaymentsSDK> {
+  // SSR 가드
+  if (typeof window === 'undefined') {
+    throw new Error('loadTossPaymentsSDK can only be called on the client side')
+  }
+
   // 이미 로드된 경우 재사용
   if (tossPaymentsInstance) {
     return tossPaymentsInstance
   }
 
   // 환경 변수 검증
-  const clientKey = TOSS_PAYMENTS_CONFIG.clientKey
+  const clientKey = TOSS_PAYMENTS_CLIENT_CONFIG.clientKey
   if (!clientKey) {
     throw new Error(
       'NEXT_PUBLIC_TOSS_CLIENT_KEY 환경 변수가 설정되지 않았습니다.'
@@ -88,7 +93,7 @@ export async function createPaymentWidget(
   const tossPayments = await loadTossPaymentsSDK()
 
   // 고객 키가 없으면 ANONYMOUS 사용
-  const key = customerKey || TOSS_PAYMENTS_CONFIG.customerKey
+  const key = customerKey || TOSS_PAYMENTS_CLIENT_CONFIG.customerKey
 
   return tossPayments.widgets({ customerKey: key })
 }

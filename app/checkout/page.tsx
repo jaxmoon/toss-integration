@@ -8,21 +8,10 @@
  */
 'use client'
 
-import { useState } from 'react'
-import dynamic from 'next/dynamic'
+import { useState, useEffect } from 'react'
 import { OrderSummary } from '@/components/OrderSummary'
-import { LoadingSpinner } from '@/components/LoadingSpinner'
-import { DEFAULT_ORDER, TEST_CUSTOMER, APP_CONFIG } from '@/config/constants'
-
-// PaymentWidget을 동적 import (코드 스플리팅)
-// SSR 비활성화: 브라우저에서만 로드 (Toss SDK는 클라이언트 전용)
-const PaymentWidget = dynamic(
-  () => import('@/components/PaymentWidget').then((mod) => mod.PaymentWidget),
-  {
-    loading: () => <LoadingSpinner message="결제 위젯 로딩 중..." size="md" />,
-    ssr: false,
-  }
-)
+import { PaymentWidget } from '@/components/PaymentWidget'
+import { DEFAULT_ORDER_SAMPLE, TEST_CUSTOMER, APP_CONFIG } from '@/config/constants'
 
 /**
  * CheckoutPage 컴포넌트
@@ -31,25 +20,81 @@ const PaymentWidget = dynamic(
  * 모바일에서는 세로로 배치됩니다.
  */
 export default function CheckoutPage() {
-  // 주문 정보 (샘플 데이터) - readonly를 mutable로 변환
-  const [order] = useState({
-    orderId: DEFAULT_ORDER.orderId,
-    orderName: DEFAULT_ORDER.orderName,
-    amount: DEFAULT_ORDER.amount,
-    items: [...DEFAULT_ORDER.items],
-  })
+  // 서버에서 생성된 주문 정보
+  const [order, setOrder] = useState<{
+    orderId: string
+    orderName: string
+    amount: number
+    items: Array<{
+      id: string
+      name: string
+      price: number
+      quantity: number
+      imageUrl: string
+    }>
+  } | null>(null)
+
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  // 컴포넌트 마운트 시 서버에서 주문 생성
+  useEffect(() => {
+    async function createOrder() {
+      try {
+        setIsLoading(true)
+
+        // 서버 API 호출하여 주문 생성
+        const response = await fetch('/api/orders', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            amount: DEFAULT_ORDER_SAMPLE.amount,
+            orderName: DEFAULT_ORDER_SAMPLE.orderName,
+            customerName: TEST_CUSTOMER.name,
+            customerEmail: TEST_CUSTOMER.email,
+            customerMobilePhone: TEST_CUSTOMER.phone,
+          }),
+        })
+
+        if (!response.ok) {
+          const errorData = await response.json()
+          throw new Error(errorData.error || '주문 생성 실패')
+        }
+
+        const orderData = await response.json()
+
+        setOrder({
+          orderId: orderData.orderId,
+          orderName: orderData.orderName,
+          amount: orderData.amount,
+          items: [...DEFAULT_ORDER_SAMPLE.items],
+        })
+      } catch (err) {
+        console.error('[Order Creation Error]', err)
+        setError(err instanceof Error ? err.message : '주문 생성 중 오류가 발생했습니다.')
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    createOrder()
+  }, [])
 
   // 결제 요청 데이터 구성
-  const paymentData = {
-    orderId: order.orderId,
-    orderName: order.orderName,
-    amount: order.amount,
-    customerName: TEST_CUSTOMER.name,
-    customerEmail: TEST_CUSTOMER.email,
-    customerMobilePhone: TEST_CUSTOMER.phone,
-    successUrl: APP_CONFIG.successUrl,
-    failUrl: APP_CONFIG.failUrl,
-  }
+  const paymentData = order
+    ? {
+        orderId: order.orderId,
+        orderName: order.orderName,
+        amount: order.amount,
+        customerName: TEST_CUSTOMER.name,
+        customerEmail: TEST_CUSTOMER.email,
+        customerMobilePhone: TEST_CUSTOMER.phone,
+        successUrl: APP_CONFIG.successUrl,
+        failUrl: APP_CONFIG.failUrl,
+      }
+    : null
 
   return (
     <main className="min-h-screen bg-gray-50 py-8 px-4 sm:py-12">
@@ -65,22 +110,40 @@ export default function CheckoutPage() {
         </header>
 
         {/* 주문 요약 및 결제 위젯 */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* 주문 요약 */}
-          <section aria-label="주문 정보">
-            <OrderSummary order={order} />
-          </section>
+        {isLoading ? (
+          <div className="text-center py-12">
+            <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent"></div>
+            <p className="mt-4 text-gray-600">주문 정보를 불러오는 중...</p>
+          </div>
+        ) : error ? (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+            <p className="text-red-800 font-semibold mb-2">주문 생성 실패</p>
+            <p className="text-red-600 text-sm">{error}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+            >
+              다시 시도
+            </button>
+          </div>
+        ) : order && paymentData ? (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* 주문 요약 */}
+            <section aria-label="주문 정보">
+              <OrderSummary order={order} />
+            </section>
 
-          {/* 결제 위젯 */}
-          <section aria-label="결제 정보">
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-6">
-                결제 정보
-              </h2>
-              <PaymentWidget paymentData={paymentData} />
-            </div>
-          </section>
-        </div>
+            {/* 결제 위젯 */}
+            <section aria-label="결제 정보">
+              <div className="bg-white rounded-lg shadow-md p-6">
+                <h2 className="text-xl font-bold text-gray-900 mb-6">
+                  결제 정보
+                </h2>
+                <PaymentWidget paymentData={paymentData} />
+              </div>
+            </section>
+          </div>
+        ) : null}
 
         {/* 테스트 안내 */}
         <aside
