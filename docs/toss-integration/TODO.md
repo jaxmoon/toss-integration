@@ -1,10 +1,10 @@
 # Toss Payments 통합 - 진행 체크리스트
 
-> **진행도**: 5% (1/20 Phase 완료)
+> **진행도**: 25% (Phase 1 완료)
 >
 > **마지막 업데이트**: 2025-11-01
 >
-> **현재 작업**: 문서 작성 단계
+> **현재 작업**: Phase 1 완료, Phase 2 진행 중
 
 ---
 
@@ -16,7 +16,7 @@
 - [x] .gitignore 설정
 - [x] 실행 계획서 작성 (plan.md)
 - [x] TODO 체크리스트 작성 (이 파일)
-- [ ] Task 문서 작성 (tasks/*.md)
+- [x] Task 문서 작성 (tasks/*.md)
 
 ---
 
@@ -26,57 +26,57 @@
 **예상 시간**: 30분
 
 ### 1-1. Next.js 프로젝트 초기화 (devops-infrastructure-specialist)
-- [ ] `tasks/phase1-devops.md` 읽기
-- [ ] `techspec.md` 필수 확인
-- [ ] Next.js 14+ 프로젝트 생성 (`create-next-app`)
-- [ ] TypeScript 설정 선택
-- [ ] Tailwind CSS 설정 선택
-- [ ] App Router 설정 선택
-- [ ] 필수 의존성 설치:
-  - [ ] `@tosspayments/tosspayments-sdk`
-  - [ ] `axios`
-  - [ ] `jest`
-  - [ ] `@testing-library/react`
-  - [ ] `@testing-library/jest-dom`
-- [ ] `package.json` 확인
-- [ ] `npm run dev` 정상 실행 확인
-- [ ] `npm run build` 성공 확인
-- [ ] Git 커밋: "feat(setup): Next.js 프로젝트 초기화 및 의존성 설치"
+- [x] `tasks/phase1-devops.md` 읽기
+- [x] `techspec.md` 필수 확인
+- [x] Next.js 14+ 프로젝트 생성 (Next.js 16.0.1 설치)
+- [x] TypeScript 설정 선택
+- [x] Tailwind CSS 설정 선택
+- [x] App Router 설정 선택
+- [x] 필수 의존성 설치:
+  - [x] `@tosspayments/tosspayments-sdk@2.4.0`
+  - [x] `axios@1.13.1`
+  - [x] `jest@29.7.0`
+  - [x] `@testing-library/react@14.3.1`
+  - [x] `@testing-library/jest-dom@6.9.1`
+- [x] `package.json` 확인
+- [x] `npm run dev` 정상 실행 확인
+- [x] `npm run build` 성공 확인
+- [x] Git 커밋: "feat(setup): Next.js 프로젝트 초기화 및 의존성 설치"
 
 ### 1-2. TypeScript 타입 정의 (database-engineer-specialist)
-- [ ] `tasks/phase1-database.md` 읽기
-- [ ] `techspec.md` 필수 확인
-- [ ] `src/types/` 디렉토리 생성
-- [ ] `types/payment.ts` 생성:
-  - [ ] `Order` 인터페이스
-  - [ ] `OrderItem` 인터페이스
-  - [ ] `Customer` 인터페이스
-  - [ ] `PaymentRequest` 인터페이스
-  - [ ] `PaymentConfirmation` 인터페이스
-- [ ] `src/config/` 디렉토리 생성
-- [ ] `config/constants.ts` 생성:
-  - [ ] 환경 변수 상수
-  - [ ] Toss API URL
-  - [ ] 샘플 상품 데이터
-- [ ] TypeScript 컴파일 에러 확인
-- [ ] Git 커밋: "feat(types): TypeScript 타입 정의 및 상수 추가"
+- [x] `tasks/phase1-database.md` 읽기
+- [x] `techspec.md` 필수 확인
+- [x] `types/` 디렉토리 생성
+- [x] `types/payment.ts` 생성:
+  - [x] `Order` 인터페이스
+  - [x] `OrderItem` 인터페이스
+  - [x] `Customer` 인터페이스
+  - [x] `PaymentRequest` 인터페이스
+  - [x] `PaymentConfirmation` 인터페이스 (확장됨)
+- [x] `config/` 디렉토리 생성
+- [x] `config/constants.ts` 생성:
+  - [x] 환경 변수 상수
+  - [x] Toss API URL
+  - [x] 샘플 상품 데이터
+- [x] TypeScript 컴파일 에러 확인 (0건)
+- [x] Git 커밋: "feat(types): TypeScript 타입 정의 및 상수 추가"
 
 ### 1-3. 테스트 환경 설정 (test-engineer-specialist)
-- [ ] `tasks/phase1-test-setup.md` 읽기
-- [ ] `techspec.md` 필수 확인
-- [ ] `jest.config.js` 생성
-- [ ] `jest.setup.js` 생성
-- [ ] `__tests__/` 디렉토리 생성
-- [ ] `__tests__/utils/` 테스트 유틸리티 생성
-- [ ] `__tests__/mocks/` 목 데이터 생성
-- [ ] `npm test` 실행 확인 (통과 테스트 0개라도 OK)
-- [ ] Git 커밋: "feat(test): Jest 및 Testing Library 설정"
+- [x] `tasks/phase1-test-setup.md` 읽기
+- [x] `techspec.md` 필수 확인
+- [x] `jest.config.js` 생성
+- [x] `jest.setup.js` 생성
+- [x] `__tests__/` 디렉토리 생성
+- [x] `__tests__/utils/` 테스트 유틸리티 생성
+- [x] `__tests__/mocks/` 목 데이터 생성
+- [x] `npm test` 실행 확인 (3 tests passed)
+- [x] Git 커밋: "feat(test): Jest 및 Testing Library 설정"
 
 **Phase 1 완료 조건**:
-- [ ] Next.js 프로젝트 정상 실행
-- [ ] TypeScript 컴파일 에러 0건
-- [ ] 테스트 실행 가능
-- [ ] 3개 커밋 생성
+- [x] Next.js 프로젝트 정상 실행
+- [x] TypeScript 컴파일 에러 0건
+- [x] 테스트 실행 가능 (3 tests passing)
+- [x] 3개 커밋 생성
 
 ---
 
