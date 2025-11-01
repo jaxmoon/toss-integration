@@ -317,6 +317,7 @@ describe('verifyWebhookSignature', () => {
         isValid: true,
         metadata: {
           timestamp: expect.any(Number),
+          durationMs: expect.any(Number),
         },
       })
     })
@@ -335,6 +336,7 @@ describe('verifyWebhookSignature', () => {
         reason: 'INVALID_SIGNATURE',
         metadata: {
           timestamp: expect.any(Number),
+          durationMs: expect.any(Number),
         },
       })
     })
