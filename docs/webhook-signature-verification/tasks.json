@@ -1,0 +1,132 @@
+[
+  {
+    "name": "Signature Verification Tests",
+    "phase": 1,
+    "agent": "test-engineer-specialist",
+    "duration": "30min",
+    "files": ["__tests__/lib/webhooks/verifySignature.test.ts"],
+    "dependencies": [],
+    "feature": "webhook-signature-verification",
+    "description": "Write comprehensive test suite for HMAC-SHA256 signature verification. Tests must include: valid signature acceptance, invalid signature rejection, missing signature handling, timing-safe comparison, empty body handling, and different content types."
+  },
+  {
+    "name": "Idempotency Handler Tests",
+    "phase": 1,
+    "agent": "test-engineer-specialist",
+    "duration": "30min",
+    "files": ["__tests__/lib/webhooks/idempotencyHandler.test.ts"],
+    "dependencies": [],
+    "feature": "webhook-signature-verification",
+    "description": "Write test suite for idempotency handling. Tests must include: first request acceptance, duplicate request rejection, cache expiration, and isolation between different idempotency keys."
+  },
+  {
+    "name": "Webhook Integration Tests",
+    "phase": 1,
+    "agent": "test-engineer-specialist",
+    "duration": "45min",
+    "files": ["__tests__/api/webhooks/toss.test.ts"],
+    "dependencies": [],
+    "feature": "webhook-signature-verification",
+    "description": "Write end-to-end integration tests for webhook endpoint with verification. Tests must include: valid webhook processing, invalid signature rejection, security event logging, and idempotency correctness."
+  },
+  {
+    "name": "HMAC Signature Utility",
+    "phase": 2,
+    "agent": "security-engineer-specialist",
+    "duration": "30min",
+    "files": ["lib/webhooks/crypto.ts"],
+    "dependencies": ["Signature Verification Tests"],
+    "feature": "webhook-signature-verification",
+    "description": "Implement HMAC-SHA256 signature calculation and timing-safe comparison using Node.js crypto module. Must use timingSafeEqual to prevent timing attacks."
+  },
+  {
+    "name": "Verification Middleware",
+    "phase": 2,
+    "agent": "security-engineer-specialist",
+    "duration": "45min",
+    "files": ["lib/webhooks/verifySignature.ts"],
+    "dependencies": ["HMAC Signature Utility"],
+    "feature": "webhook-signature-verification",
+    "description": "Implement webhook signature verification middleware. Extract Toss-Signature header, calculate expected signature, compare using timing-safe function, and return verification result."
+  },
+  {
+    "name": "Idempotency Handler",
+    "phase": 2,
+    "agent": "backend-specialist",
+    "duration": "45min",
+    "files": ["lib/webhooks/idempotencyHandler.ts"],
+    "dependencies": ["Idempotency Handler Tests"],
+    "feature": "webhook-signature-verification",
+    "description": "Implement in-memory idempotency handler with TTL. Store processed request IDs, check for duplicates, implement cache expiration, and provide upgrade path to Redis for production."
+  },
+  {
+    "name": "Security Logger",
+    "phase": 2,
+    "agent": "backend-specialist",
+    "duration": "30min",
+    "files": ["lib/webhooks/securityLogger.ts"],
+    "dependencies": [],
+    "feature": "webhook-signature-verification",
+    "description": "Implement structured security logging for webhook events. Log success and failure events with metadata including timestamp, request ID, IP address, and failure reason. Never log sensitive data."
+  },
+  {
+    "name": "Update Webhook Route",
+    "phase": 2,
+    "agent": "backend-api-specialist",
+    "duration": "30min",
+    "files": ["app/api/webhooks/toss/route.ts"],
+    "dependencies": ["Verification Middleware", "Idempotency Handler", "Security Logger"],
+    "feature": "webhook-signature-verification",
+    "description": "Integrate verification middleware, idempotency handler, and security logger into existing webhook route. Add signature verification before processing, handle verification failures with appropriate HTTP status codes, and ensure comprehensive error handling."
+  },
+  {
+    "name": "Extract Constants",
+    "phase": 3,
+    "agent": "code-review-specialist",
+    "duration": "15min",
+    "files": ["lib/webhooks/crypto.ts", "lib/webhooks/verifySignature.ts", "lib/webhooks/idempotencyHandler.ts", "lib/webhooks/securityLogger.ts"],
+    "dependencies": ["Update Webhook Route"],
+    "feature": "webhook-signature-verification",
+    "description": "Extract magic strings and numbers to named constants. Create constants file if needed. Improve code maintainability."
+  },
+  {
+    "name": "Add JSDoc Comments",
+    "phase": 3,
+    "agent": "code-review-specialist",
+    "duration": "20min",
+    "files": ["lib/webhooks/crypto.ts", "lib/webhooks/verifySignature.ts", "lib/webhooks/idempotencyHandler.ts", "lib/webhooks/securityLogger.ts"],
+    "dependencies": ["Update Webhook Route"],
+    "feature": "webhook-signature-verification",
+    "description": "Add comprehensive JSDoc comments to all public functions and classes. Document parameters, return values, exceptions, and usage examples."
+  },
+  {
+    "name": "Optimize Performance",
+    "phase": 3,
+    "agent": "code-review-specialist",
+    "duration": "20min",
+    "files": ["lib/webhooks/crypto.ts"],
+    "dependencies": ["Update Webhook Route"],
+    "feature": "webhook-signature-verification",
+    "description": "Optimize signature verification performance to ensure < 100ms processing time. Profile code, identify bottlenecks, and implement optimizations while maintaining security."
+  },
+  {
+    "name": "Improve Error Messages",
+    "phase": 3,
+    "agent": "code-review-specialist",
+    "duration": "15min",
+    "files": ["lib/webhooks/verifySignature.ts", "lib/webhooks/idempotencyHandler.ts", "app/api/webhooks/toss/route.ts"],
+    "dependencies": ["Update Webhook Route"],
+    "feature": "webhook-signature-verification",
+    "description": "Enhance error messages for better debugging and user experience. Provide clear, actionable error messages without exposing sensitive information."
+  },
+  {
+    "name": "Strengthen TypeScript Types",
+    "phase": 3,
+    "agent": "code-review-specialist",
+    "duration": "20min",
+    "files": ["lib/webhooks/crypto.ts", "lib/webhooks/verifySignature.ts", "lib/webhooks/idempotencyHandler.ts", "lib/webhooks/securityLogger.ts"],
+    "dependencies": ["Update Webhook Route"],
+    "feature": "webhook-signature-verification",
+    "description": "Add strict TypeScript types for all functions and interfaces. Eliminate 'any' types, add proper return types, and ensure type safety."
+  }
+]
