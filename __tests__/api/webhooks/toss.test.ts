@@ -182,7 +182,7 @@ describe('POST /api/webhooks/toss - Integration Tests', () => {
       const data = await response.json()
 
       expect(response.status).toBe(401)
-      expect(data.error).toBe('Invalid signature')
+      expect(data.error).toBe('Signature verification failed. Check webhook signature and secret.')
       expect(data.success).toBe(false)
     })
 
@@ -194,7 +194,7 @@ describe('POST /api/webhooks/toss - Integration Tests', () => {
       const data = await response.json()
 
       expect(response.status).toBe(401)
-      expect(data.error).toBe('Missing signature')
+      expect(data.error).toBe('Missing signature header. Include "Toss-Signature" header in webhook request.')
       expect(data.success).toBe(false)
     })
 
@@ -216,7 +216,7 @@ describe('POST /api/webhooks/toss - Integration Tests', () => {
       const data = await secondResponse.json()
 
       expect(secondResponse.status).toBe(409)
-      expect(data.error).toBe('Duplicate request')
+      expect(data.error).toBe('Duplicate webhook request detected. This request was already processed.')
       expect(data.success).toBe(false)
     })
 
@@ -229,7 +229,7 @@ describe('POST /api/webhooks/toss - Integration Tests', () => {
       expect(mockConsoleWarn).toHaveBeenCalledWith(
         expect.stringContaining('[Webhook Verification Failed]'),
         expect.objectContaining({
-          reason: 'Invalid signature',
+          reason: 'Signature verification failed. Check webhook signature and secret.',
           orderId: 'ORD-20251102-abc123',
         })
       )
@@ -339,19 +339,19 @@ describe('POST /api/webhooks/toss - Integration Tests', () => {
           scenario: 'Missing signature',
           options: { includeSignatureHeader: false },
           expectedStatus: 401,
-          expectedError: 'Missing signature',
+          expectedError: 'Missing signature header. Include "Toss-Signature" header in webhook request.',
         },
         {
           scenario: 'Invalid signature',
           options: { signature: 'wrong_sig' },
           expectedStatus: 401,
-          expectedError: 'Invalid signature',
+          expectedError: 'Signature verification failed. Check webhook signature and secret.',
         },
         {
           scenario: 'Missing idempotency key',
           options: { includeIdempotencyHeader: false },
           expectedStatus: 400,
-          expectedError: 'Missing idempotency key',
+          expectedError: 'Missing idempotency key. Include "Toss-Idempotency-Key" header in webhook request.',
         },
       ]
 
@@ -379,7 +379,7 @@ describe('POST /api/webhooks/toss - Integration Tests', () => {
       const data = await response.json()
 
       expect(response.status).toBe(400)
-      expect(data.error).toBe('Invalid webhook payload')
+      expect(data.error).toBe('Invalid webhook payload. Missing required fields: orderId, paymentKey.')
       expect(data.success).toBe(false)
     })
 
@@ -485,7 +485,7 @@ describe('POST /api/webhooks/toss - Integration Tests', () => {
       const data = await response.json()
 
       expect(response.status).toBe(500)
-      expect(data.error).toBe('Webhook secret not configured')
+      expect(data.error).toBe('Webhook secret not configured. Set TOSS_WEBHOOK_SECRET in environment variables.')
 
       // Restore secret
       process.env.TOSS_WEBHOOK_SECRET = originalSecret
